@@ -12,7 +12,7 @@ This repository is the official implementation of the paper PC-VLG.
 
 
 ### ACDC
-ACDC~\cite{bernard2018deep} includes 100 cardiac MR volumes annotated for right ventricle (RV), left ventricle (LV), and myocardium (MYO). Following~\cite{wang2021tripled}, 75 cases are used for training, 5 for validation, and 20 for testing. 
+(b) ACDC~\cite{bernard2018deep} includes 100 cardiac MR volumes annotated for right ventricle (RV), left ventricle (LV), and myocardium (MYO). Following~\cite{wang2021tripled}, 75 cases are used for training, 5 for validation, and 20 for testing. 
 
 
 ## Requirements
