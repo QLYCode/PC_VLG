@@ -1,7 +1,7 @@
 
 # PC-VLG: Position-Correlated Vision–Language Graph Alignment for Semi-Supervised Medical Image Segmentation
 
-#### [📌] The full implementation details will be released upon acceptance.
+#### [📌] The full implementation details will be released upon official acceptance.
 
 ## Datasets
 
