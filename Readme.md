@@ -45,8 +45,6 @@ python train_pc_vlg.py --config configs/pc_vlg/flare21.json --gpu 3 --ratio 0.2 
 
 Source: [Zenodo record 5903672](https://zenodo.org/records/5903672). The 361 labeled training cases are split 260/26/75 with seed1337. Published archive MD5 values are verified before extraction. Image/mask matching handles image channel suffix `_0000`. Labels: 0 background, 1 liver, 2 kidney, 3 spleen, 4 pancreas. Split membership is saved; no case is shared between train/val/test. Official unlabeled validation/test cases cannot provide local ground-truth metrics.
 
-
-
 ### ACDC stability experiments 
 
 ```bash
@@ -54,8 +52,6 @@ Source: [Zenodo record 5903672](https://zenodo.org/records/5903672). The 361 lab
 python train_pc_vlg_stable.py --config configs/pc_vlg/acdc_stable10.json --gpu 3 --ratio 0.1 --out runs/acdc_stable_label10
 python train_pc_vlg_stable.py --config configs/pc_vlg/acdc_stable20.json --gpu 3 --ratio 0.2 --out runs/acdc_stable_label20
 ```
-
-Changes: validation-based early stopping (8 checks, interval500), EMA coarse teacher/evaluation, foreground Dice, reduced background CE weight, confidence-filtered class-balanced consistency, background-only pseudo-label rejection, weaker consistency weight (max0.02), smaller learning rates (SGD0.003/AdamW1e-5), warmup, cosine decay, plateau LR reduction and mild photometric perturbations. Teacher predictions are detached. Both optimizers skip together on AMP overflow. Baseline validation is saved before optimization, so a later degraded checkpoint cannot overwrite the best model. Validation-only tuning is the default; final test evaluation is separate. A validation DSC target above85% is tracked, not guaranteed. Set `init_checkpoint` to null for a from-scratch stability run.
 
 ### GPU queue
 
