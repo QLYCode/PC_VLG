@@ -43,19 +43,9 @@ python train_pc_vlg.py --config configs/pc_vlg/flare21.json --gpu 3 --ratio 0.2 
 
 Source: [Zenodo record 5903672](https://zenodo.org/records/5903672). The 361 labeled training cases are split 260/26/75 with seed1337. Published archive MD5 values are verified before extraction. Image/mask matching handles image channel suffix `_0000`. Labels: 0 background, 1 liver, 2 kidney, 3 spleen, 4 pancreas. Split membership is saved; no case is shared between train/val/test. Official unlabeled validation/test cases cannot provide local ground-truth metrics.
 
-### ACDC: patient-separated data and paper training
 
-Prepare `raw/images/patientNNN_frameNN.nii.gz` and matching `raw/full_annos/` masks, plus a test-list file containing the 20 held-out patient ED/ES volume names:
 
-```bash
-python bootstrap_pc_vlg_data.py acdc --raw-root /path/to/ACDC/raw --acdc-test-list /path/to/ACDC/test.list
-python train_pc_vlg.py --config configs/pc_vlg/acdc.json --gpu 3 --ratio 0.1 --out runs/acdc_label10
-python train_pc_vlg.py --config configs/pc_vlg/acdc.json --gpu 3 --ratio 0.2 --out runs/acdc_label20
-```
-
-Patient counts: 75/5/20. Both ED/ES phases stay with their patient. Duplicate annotation variants are excluded. Labels: 0 background, 1 right ventricle, 2 myocardium, 3 left ventricle. Alternatively provide explicit patient/volume splits using `prepare_pc_vlg_data.py --split-json ...`; do not infer random slice splits.
-
-### ACDC stability experiments (optional, different from paper settings)
+### ACDC stability experiments 
 
 ```bash
 # Uses the matching baseline's best.pt to initialize both branches, with new optimizers.
