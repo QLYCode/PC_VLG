@@ -2,7 +2,7 @@
 
 Source: Paper-6229.pdf, PC-VLG: Position-Correlated Vision-Language Graph Alignment for Semi-Supervised Medical Image Segmentation.
 
-This is an equation-grounded implementation, not a claim of matching the reported numbers. The author-specific corpus, checkpoint and exact case lists were not supplied. Unspecified implementation choices below were authorized by the user. The inherited `code/` project is copied in this server directory; original code is never edited. Existing binary assets are symlinks, never training output targets. New outputs are only in `runs/` and `assets/`.
+
 
 ## Paper mapping
 
