@@ -1,0 +1,43 @@
+{
+  "source": "Curated anatomical starter descriptions and directed relations; original author PubMed text corpus not supplied. Replace to match author-specific corpus.",
+  "concepts": [
+    {
+      "name": "liver",
+      "definition": "The liver is a large abdominal organ inferior to the diaphragm and predominantly in the right upper abdomen."
+    },
+    {
+      "name": "kidney",
+      "definition": "The kidneys are paired retroperitoneal organs on either side of the spine, posterior to the abdominal viscera."
+    },
+    {
+      "name": "spleen",
+      "definition": "The spleen lies in the left upper abdomen, lateral to the stomach and inferior to the diaphragm."
+    },
+    {
+      "name": "pancreas",
+      "definition": "The pancreas is an elongated gland posterior to the stomach, extending toward the splenic hilum."
+    }
+  ],
+  "triples": [
+    [
+      "liver",
+      "right_of",
+      "spleen"
+    ],
+    [
+      "spleen",
+      "left_of",
+      "liver"
+    ],
+    [
+      "pancreas",
+      "medial_to",
+      "spleen"
+    ],
+    [
+      "kidney",
+      "posterior_to",
+      "liver"
+    ]
+  ]
+}

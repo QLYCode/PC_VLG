@@ -1,0 +1,11 @@
+# Install CUDA-specific torch/torchvision first; versions below match the server.
+numpy<2
+scipy==1.10.1
+SimpleITK==2.4.1
+medpy==0.5.2
+transformers==4.46.3
+dynamic-network-architectures==0.3.1
+einops==0.8.0
+# Build these after installing torch with the CUDA toolkit available:
+# causal-conv1d==1.2.0.post2
+# mamba-ssm==2.2.2

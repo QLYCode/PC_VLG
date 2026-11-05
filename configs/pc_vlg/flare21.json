@@ -1,0 +1,25 @@
+{
+  "dataset": "flare21",
+  "classes": 5,
+  "concepts": [
+    "liver",
+    "kidney",
+    "spleen",
+    "pancreas"
+  ],
+  "manifest": "data/flare21/manifest.json",
+  "medsam": "assets/medsam_vit_b.pth",
+  "text_bank": "assets/text_flare21/text_bank.pt",
+  "pubmed_bert": "assets/pubmed_bert",
+  "knowledge": "configs/pc_vlg/flare21_knowledge.json",
+  "iterations": 90000,
+  "batch_size": 4,
+  "labeled_bs": 2,
+  "seed": 1337,
+  "val_every": 1000,
+  "save_every": 1000,
+  "warmup": 10000,
+  "amp": true,
+  "workers": 4,
+  "literal_eq13": false
+}

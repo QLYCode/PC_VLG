@@ -1,0 +1,34 @@
+{
+  "source": "Curated anatomical starter descriptions and directed relations; original author PubMed text corpus not supplied. Replace to match author-specific corpus.",
+  "concepts": [
+    {
+      "name": "right ventricle",
+      "definition": "The right ventricle is a cardiac chamber positioned predominantly anterior to the left ventricle."
+    },
+    {
+      "name": "myocardium",
+      "definition": "The myocardium is cardiac muscle forming the ventricular wall and surrounding the left ventricular cavity."
+    },
+    {
+      "name": "left ventricle",
+      "definition": "The left ventricle is a cardiac chamber bounded by the left ventricular myocardium."
+    }
+  ],
+  "triples": [
+    [
+      "myocardium",
+      "surrounds",
+      "left ventricle"
+    ],
+    [
+      "left ventricle",
+      "inside",
+      "myocardium"
+    ],
+    [
+      "right ventricle",
+      "anterior_to",
+      "left ventricle"
+    ]
+  ]
+}
