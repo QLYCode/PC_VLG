@@ -6,7 +6,7 @@
 
 ## Executable implementation
 
-The repository now includes training, inference, data preparation and tests for both FLARE21 and ACDC. Original paper settings and optional ACDC stability experiments use separate entries. Implementation decisions for details absent from the paper are documented in [IMPLEMENTATION.md](IMPLEMENTATION.md); reported paper scores are not claimed as reproduced results.
+The repository now includes training, inference, data preparation and tests for both FLARE21 and ACDC. 
 
 ### Environment
 
