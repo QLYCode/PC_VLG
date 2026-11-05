@@ -1,6 +1,8 @@
 
 ## PC-VLG: Position-Correlated Vision–Language Graph Alignment for Semi-Supervised Medical Image Segmentation
 
+👉 Early  Accepted at **MICCAI 2026, the top 9% of submitted papers**: This repository is the official implementation of the paper PC-VLG.
+
 
 ## Executable implementation
 
