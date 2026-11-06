@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 from medpy.metric.binary import dc,jc,hd95,asd
-from .data import SliceDataset
+from .data import SliceDataset,load_npy_slice
 
 
 @torch.no_grad()
@@ -18,7 +18,7 @@ def evaluate(coarse,rows,classes,device):
         pred=logits.argmax(1)[0].cpu().numpy()
         gt=sample['label'].numpy()
         # Restore slice geometry before volume metrics (nearest neighbor).
-        original=np.load(row['label'],mmap_mode='r')[int(row['slice'])]
+        original=load_npy_slice(row['label'],int(row['slice']),np.int64)
         pred=torch.nn.functional.interpolate(torch.from_numpy(pred)[None,None].float(),size=original.shape,mode='nearest')[0,0].long().numpy()
         bucket=cases.setdefault(str(row.get('volume_id',row['case_id'])),dict(slices=[],spacing=row.get('spacing',[1,1,1])))
         bucket['slices'].append((int(row['slice']),pred,np.asarray(original)))

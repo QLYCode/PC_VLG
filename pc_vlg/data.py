@@ -9,6 +9,17 @@ from torch.utils.data import Dataset,Sampler
 from torch.nn import functional as F
 
 
+def load_npy_slice(path, index, dtype):
+    """Copy one slice from a memory map and promptly release its file handle."""
+    array=np.load(path,mmap_mode='r')
+    try:
+        return np.asarray(array[index],dtype=dtype).copy()
+    finally:
+        mmap=getattr(array,'_mmap',None)
+        if mmap is not None:
+            mmap.close()
+
+
 def audit_manifest(manifest,ratio=0.1,seed=1337):
     m=json.loads(Path(manifest).read_text())
     pools={split:{str(r['case_id']) for r in m[split]} for split in ['train','val','test']}
@@ -27,9 +38,9 @@ class SliceDataset(Dataset):
     def __len__(self): return len(self.rows)
     def __getitem__(self,index):
         r=self.rows[index]; z=int(r['slice'])
-        image=np.asarray(np.load(r['image'],mmap_mode='r')[z],dtype=np.float32).copy()
+        image=load_npy_slice(r['image'],z,np.float32)
         labeled=self.labeled_cases is None or str(r['case_id']) in self.labeled_cases
-        label=np.asarray(np.load(r['label'],mmap_mode='r')[z],dtype=np.int64).copy() if labeled else np.full(image.shape,-1,dtype=np.int64)
+        label=load_npy_slice(r['label'],z,np.int64) if labeled else np.full(image.shape,-1,dtype=np.int64)
         x=torch.from_numpy(image)[None,None]
         x=F.interpolate(x,size=(self.size,self.size),mode='bilinear',align_corners=False).clamp(0,1)
         y=F.interpolate(torch.from_numpy(label).float()[None,None],size=(self.size,self.size),mode='nearest')
