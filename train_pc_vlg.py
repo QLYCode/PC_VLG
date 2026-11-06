@@ -102,7 +102,10 @@ def main():
             print('REAL_MODEL_PREFLIGHT_OK step {} peak_cuda_mib {:.1f}'.format(step,torch.cuda.max_memory_allocated()/1024**2),flush=True)
             return
         if step%cfg.get('val_every',1000)==0 or step==total:
-            val=evaluate(coarse,manifest['val'],classes,device)
+            # Persist weights before validation so an evaluation failure never
+            # discards the latest trainable model state.
+            save(out/'last.pt')
+            val=evaluate(coarse,manifest['val'],classes,device,surface_metrics=False)
             val['step']=step; val['split']='val'
             with (out/'val.jsonl').open('a') as f: f.write(json.dumps(val)+'\n')
             print('VAL '+json.dumps({k:v for k,v in val.items() if k!='per_case'}),flush=True)
@@ -112,7 +115,7 @@ def main():
             save(out/'last.pt')
         elif step%cfg.get('save_every',1000)==0: save(out/'last.pt')
     best_state=torch.load(out/'best_coarse.pt',map_location='cpu'); coarse.load_state_dict(best_state['coarse'])
-    test=evaluate(coarse,manifest['test'],classes,device)
+    test=evaluate(coarse,manifest['test'],classes,device,surface_metrics=False)
     test['split']='test'; test['selected_on']='val_dsc'; test['checkpoint_step']=best_state['step']
     (out/'test.json').write_text(json.dumps(test,indent=2)); print('TEST '+json.dumps(test),flush=True)
 

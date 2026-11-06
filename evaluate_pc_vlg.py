@@ -13,7 +13,7 @@ def main():
     classes=state.get('classes') or state['config']['config']['classes']
     model=build_coarse(classes).cuda(); model.load_state_dict(state['coarse'],strict=True)
     rows=json.loads(Path(a.manifest).read_text())[a.split]
-    result=evaluate(model,rows,classes,torch.device('cuda'))
+    result=evaluate(model,rows,classes,torch.device('cuda'),surface_metrics=False)
     result.update(checkpoint=a.checkpoint,split=a.split)
     Path(a.out).write_text(json.dumps(result,indent=2)); print(json.dumps(result),flush=True)
 
