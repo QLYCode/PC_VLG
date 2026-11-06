@@ -16,15 +16,18 @@ class CoarseEMA(nn.Module):
 
 
 class ValidationGuard:
-    def __init__(self,patience=8,min_delta=0.001,min_steps=2000):
+    def __init__(self,patience=8,min_delta=0.001,min_steps=2000,smoothing_window=3):
         self.patience=patience; self.min_delta=min_delta; self.min_steps=min_steps
+        self.smoothing_window=max(1,int(smoothing_window)); self.history=[]
         self.best=-float('inf'); self.patience_best=-float('inf'); self.best_step=0; self.stale=0
     def update(self,score,step):
         if not math.isfinite(score): raise FloatingPointError('Invalid validation score')
-        improved=score>self.patience_best+self.min_delta
+        self.history.append(float(score))
+        smooth=sum(self.history[-self.smoothing_window:])/len(self.history[-self.smoothing_window:])
+        improved=smooth>self.patience_best+self.min_delta
         # A new absolute best is always saved; patience resets only for material improvement.
         absolute_best=score>self.best
-        if improved: self.stale=0; self.patience_best=score
+        if improved: self.stale=0; self.patience_best=smooth
         else: self.stale+=1
         if absolute_best: self.best=score; self.best_step=step
         return absolute_best,step>=self.min_steps and self.stale>=self.patience

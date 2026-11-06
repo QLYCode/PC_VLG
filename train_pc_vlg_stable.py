@@ -46,9 +46,13 @@ def main():
     if init and not a.resume:
         state=torch.load(init,map_location='cpu')
         if state.get('config',{}).get('labeled_cases')!=sorted(labeled_cases): raise ValueError('Initialization labeled-patient split mismatch')
-        coarse.load_state_dict(state['coarse'],strict=True); refined.load_state_dict(state['refined'],strict=True)
+        coarse.load_state_dict(state['coarse'],strict=True)
+        missing,unexpected=refined.load_state_dict(state['refined'],strict=False)
+        permitted=('alignment_logit_scale','graph_residual_scale')
+        if unexpected or any(not key.endswith(permitted) for key in missing):
+            raise RuntimeError('Unexpected graph initialization mismatch: missing={} unexpected={}'.format(missing,unexpected))
     ema=CoarseEMA(coarse,cfg.get('ema_decay',0.99))
-    guard=ValidationGuard(cfg.get('patience',8),cfg.get('min_delta',0.001),cfg.get('min_steps',2000))
+    guard=ValidationGuard(cfg.get('patience',8),cfg.get('min_delta',0.001),cfg.get('min_steps',2000),cfg.get('smoothing_window',3))
     plateau_multiplier=1.0
     lr_coarse=cfg.get('lr_coarse',0.003); lr_refined=cfg.get('lr_refined',1e-5)
     optc=torch.optim.SGD(coarse.parameters(),lr=lr_coarse,momentum=0.9,weight_decay=1e-4)
@@ -77,7 +81,7 @@ def main():
             optimizer_refined=optr.state_dict(),scaler=scaler.state_dict(),step=step,best_val_dsc=best,config=run,ema=ema.model.state_dict(),guard=guard.__dict__,plateau_multiplier=plateau_multiplier,
             rng_python=random.getstate(),rng_numpy=np.random.get_state(),rng_torch=torch.get_rng_state(),rng_cuda=torch.cuda.get_rng_state_all()),path)
     if not a.resume and not a.smoke_steps:
-        baseline=evaluate(ema.model,manifest['val'],classes,device)
+        baseline=evaluate(ema.model,manifest['val'],classes,device,surface_metrics=False)
         baseline.update(step=0,split='val',weights='ema',baseline=True)
         guard.update(baseline['dsc'],0); best=baseline['dsc']
         with (out/'val.jsonl').open('a') as f: f.write(json.dumps(baseline)+'\n')
@@ -125,11 +129,18 @@ def main():
             print('REAL_MODEL_PREFLIGHT_OK step {} peak_cuda_mib {:.1f}'.format(step,torch.cuda.max_memory_allocated()/1024**2),flush=True)
             return
         if step%cfg.get('val_every',1000)==0 or step==total:
-            val=evaluate(ema.model,manifest['val'],classes,device)
+            # Save before evaluation so a failed metric pass does not lose weights.
+            save(out/'last.pt')
+            val=evaluate(ema.model,manifest['val'],classes,device,surface_metrics=False)
             val['step']=step; val['split']='val'; val['weights']='ema'
             new_best,stop=guard.update(val['dsc'],step)
             with (out/'val.jsonl').open('a') as f: f.write(json.dumps(val)+'\n')
             print('VAL '+json.dumps({k:v for k,v in val.items() if k!='per_case'}),flush=True)
+            if cfg.get('test_every_validation',False):
+                test=evaluate(ema.model,manifest['test'],classes,device,surface_metrics=False)
+                test.update(step=step,split='test_monitor',weights='ema',checkpoint_selection='validation_only')
+                with (out/'test_monitor.jsonl').open('a') as f: f.write(json.dumps(test)+'\n')
+                print('TEST_MONITOR '+json.dumps({k:v for k,v in test.items() if k!='per_case'}),flush=True)
             if new_best:
                 best=val['dsc']; save(out/'best.pt')
                 atomic_save(dict(coarse=ema.model.state_dict(),classes=classes,step=step,val_dsc=best,weights='ema'),out/'best_coarse.pt')

@@ -22,6 +22,10 @@ class PositionCorrelatedGraph(nn.Module):
         self.relations = nn.Embedding(relations,256)
         self.relation_score = nn.Linear(256,1,bias=False)
         self.ffn = nn.Sequential(nn.Linear(dim,dim*4),nn.GELU(),nn.Linear(dim*4,dim))
+        # Sharpen query-to-pixel localization gradually; start neutral for stability.
+        self.alignment_logit_scale = nn.Parameter(torch.zeros(()))
+        # Keep graph messages a small residual early in training to limit noisy propagation.
+        self.graph_residual_scale = nn.Parameter(torch.tensor(0.2))
 
     def forward(self, feature, query, relation_ids, midline, coordinate_transform=None):
         b,d,h,w=feature.shape
@@ -30,7 +34,8 @@ class PositionCorrelatedGraph(nn.Module):
         # FP32 attention statistics prevent low-precision entropy/softmax overflow.
         with torch.autocast(device_type=feature.device.type, enabled=False):
             s=feature.float().flatten(2).transpose(1,2); q=query.float()
-            alpha=(self.vq(q) @ self.vs(s).transpose(1,2)).softmax(-1)
+            align_scale=self.alignment_logit_scale.exp().clamp(0.5,2.0)
+            alpha=((self.vq(q) @ self.vs(s).transpose(1,2))*align_scale).softmax(-1)
             visual=alpha @ s
             yy,xx=torch.meshgrid(torch.linspace(0,1,h,device=s.device),torch.linspace(0,1,w,device=s.device),indexing='ij')
             xy=torch.stack((xx,yy),-1).reshape(h*w,2)
@@ -52,8 +57,9 @@ class PositionCorrelatedGraph(nn.Module):
             certainty=(1-entropy).clamp(0,1)
             gate=certainty[:,:,None]*certainty[:,None,:]
             edges=logits.softmax(-1)*gate  # gate AFTER softmax; do not renormalize
-            nodes=self.ffn(nodes+edges @ self.message(nodes))
+            residual_scale=self.graph_residual_scale.clamp(0.05,0.5)
+            nodes=self.ffn(nodes+residual_scale*(edges @ self.message(nodes)))
             beta=(self.back(nodes) @ s.transpose(1,2)).softmax(1)
-            refined=s+beta.transpose(1,2) @ self.out(nodes)
+            refined=s+residual_scale*(beta.transpose(1,2) @ self.out(nodes))
         result=refined.transpose(1,2).reshape(b,d,h,w).to(feature.dtype)
         return result,dict(alpha=alpha,centroids=centroid,entropy=entropy,edges=edges,nodes=nodes)
