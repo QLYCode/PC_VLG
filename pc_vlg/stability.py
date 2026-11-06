@@ -16,7 +16,7 @@ class CoarseEMA(nn.Module):
 
 
 class ValidationGuard:
-    def __init__(self,patience=8,min_delta=0.001,min_steps=2000,smoothing_window=3):
+    def __init__(self,patience=8,min_delta=0.001,min_steps=2000,smoothing_window=1):
         self.patience=patience; self.min_delta=min_delta; self.min_steps=min_steps
         self.smoothing_window=max(1,int(smoothing_window)); self.history=[]
         self.best=-float('inf'); self.patience_best=-float('inf'); self.best_step=0; self.stale=0

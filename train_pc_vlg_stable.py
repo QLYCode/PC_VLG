@@ -52,7 +52,7 @@ def main():
         if unexpected or any(not key.endswith(permitted) for key in missing):
             raise RuntimeError('Unexpected graph initialization mismatch: missing={} unexpected={}'.format(missing,unexpected))
     ema=CoarseEMA(coarse,cfg.get('ema_decay',0.99))
-    guard=ValidationGuard(cfg.get('patience',8),cfg.get('min_delta',0.001),cfg.get('min_steps',2000),cfg.get('smoothing_window',3))
+    guard=ValidationGuard(cfg.get('patience',8),cfg.get('min_delta',0.001),cfg.get('min_steps',2000),cfg.get('smoothing_window',1))
     plateau_multiplier=1.0
     lr_coarse=cfg.get('lr_coarse',0.003); lr_refined=cfg.get('lr_refined',1e-5)
     optc=torch.optim.SGD(coarse.parameters(),lr=lr_coarse,momentum=0.9,weight_decay=1e-4)

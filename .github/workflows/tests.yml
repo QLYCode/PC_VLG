@@ -12,5 +12,5 @@ jobs:
           python-version: '3.10'
       - run: pip install 'numpy<2'
       - run: pip install torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
-      - run: python -m compileall -q pc_vlg tests train_pc_vlg.py train_pc_vlg_stable.py bootstrap_pc_vlg_data.py download_flare21.py
+      - run: python -m compileall -q pc_vlg tests train_pc_vlg_stable.py queue_pc_vlg.py bootstrap_pc_vlg_data.py download_flare21.py
       - run: OMP_NUM_THREADS=2 python -m unittest discover -s tests -p 'test*.py' -v

@@ -18,7 +18,7 @@ def main():
         changed=False
         for job in jobs:
             key=job_key(job)
-            trainer='train_pc_vlg_stable.py' if job.get('stable') else 'train_pc_vlg.py'
+            trainer='train_pc_vlg_stable.py'
             if state.get(key,{}).get('status') in ['complete','failed']: continue
             config=root/'configs'/'pc_vlg'/((job['dataset']+'_stable'+str(int(job['ratio']*100)) if job.get('stable') else job['dataset'])+'.json')
             cfg=json.loads(config.read_text())
